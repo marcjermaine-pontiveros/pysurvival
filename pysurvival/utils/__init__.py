@@ -118,7 +118,7 @@ def rank_scores(T, E):
 
 
 def save_model(model, path_file):
-    """ Save the model and its parameters, and compress them into a zip file 
+    """ Save the model and its parameters, and compress them into a file using cloudpickle
 
     Parameters:
     -----------
@@ -126,10 +126,11 @@ def save_model(model, path_file):
         Pysurvival model
 
     * path_file, str
-        address of the file where the model will be loaded from 
+        address of the file where the model will be saved
     """
-
-    model.save(path_file)
+    import cloudpickle
+    with open(path_file, 'wb') as f:
+        cloudpickle.dump(model, f)
 
 
 

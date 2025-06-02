@@ -11,15 +11,7 @@ import codecs
 import re
 import glob
 from setuptools import setup, Extension, find_packages
-
-# Checking if numpy is installed
-try:
-  import numpy
-except:
-  import subprocess
-  print("numpy is not installed. So pysurvival will install it now.")
-  subprocess.call("pip install numpy", shell=True)
-  import numpy
+import numpy
 
 # Package meta-data.
 NAME = 'pysurvival'
@@ -41,9 +33,9 @@ def read_long_description():
         return f.read()
 
 def install_requires():
-	with open(CURRENT_DIR + 'requirements.txt', 'r') as requirements_file:
-	    requirements = requirements_file.readlines()
-	return requirements
+    with open(CURRENT_DIR + 'requirements.txt', 'r') as requirements_file:
+        requirements = requirements_file.readlines()
+    return requirements
 
 def read_version(*file_paths):
     with codecs.open(os.path.join(CURRENT_DIR, *file_paths), 'r') as fp:
@@ -68,6 +60,7 @@ ext_modules = [
                ],
     extra_compile_args = extra_compile_args, 
     language="c++", 
+    include_dirs=[numpy.get_include()],
   ),
 
   Extension( 
@@ -79,6 +72,7 @@ ext_modules = [
               ],
     extra_compile_args = extra_compile_args, 
     language="c++", 
+    include_dirs=[numpy.get_include()],
     ),
 
   Extension( 
@@ -89,6 +83,7 @@ ext_modules = [
                ],
     extra_compile_args = extra_compile_args, 
     language="c++", 
+    include_dirs=[numpy.get_include()],
   ),
 
   Extension( 
@@ -101,6 +96,7 @@ ext_modules = [
                 ],
     extra_compile_args = extra_compile_args, 
     language="c++", 
+    include_dirs=[numpy.get_include()],
   ),
 
   Extension( 
