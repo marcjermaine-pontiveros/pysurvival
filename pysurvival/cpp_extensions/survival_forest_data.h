@@ -40,6 +40,7 @@ namespace ranger {
 			if (col < num_cols_no_snp) {
 				return data[col * num_rows + row];
 			}
+			return 0.0; // Added default return
 		};
 
 		size_t getVariableID(const std::string& variable_name) const;
@@ -67,6 +68,7 @@ namespace ranger {
 			if (col < num_cols_no_snp) {
 				return index_data[col * num_rows + row];
 			}
+			return static_cast<size_t>(-1); // Added default return
 		}
 
 		void loadData(std::vector <std::vector<double> > Input_Data, std::vector<std::string> variable_names){

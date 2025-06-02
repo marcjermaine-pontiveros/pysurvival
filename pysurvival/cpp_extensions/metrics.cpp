@@ -37,7 +37,7 @@ map<int, double> concordance_index(vector<double> risk, vector<double> T,
 	*/
 
 	// Initializing 
-	size_t i, j, N = risk.size();
+	size_t /*i, j,*/ N = risk.size(); // Commented out unused i, j
 	vector<double> weights, E_1, censored_survival;
 	double C, w, weightedPairs, weightedConcPairs;
 	map<int, double > results;
@@ -57,19 +57,19 @@ map<int, double> concordance_index(vector<double> risk, vector<double> T,
 	weightedPairs=0. ; /* weighted pairs */
 
 	// Looping through the data to calculate the c-index
-	for (i = 0; i < N; ++i){
+	for (size_t i = 0; i < N; ++i){ // Changed loop variable type
 
 		// Only if i experienced an event
 		if( E[i]==1){
 
-			for (j = 0; j < N; ++j){
+			for (size_t j = 0; j < N; ++j){ // Changed loop variable type
 
 				if (j!=i){
 					w  = censored_km.predict_survival(T[i], false);
 					w *= censored_km.predict_survival(T[i], true);
 
 					// count pairs 
-					if( (T[i]<T[j]) | (T[j]==T[i] & E[j]==0) ){
+					if( (T[i]<T[j]) || ( (T[j]==T[i]) && (E[j]==0) ) ){ // Added parentheses for clarity
 						weightedPairs += 1./w;
 
 						// concordant pairs
@@ -126,7 +126,7 @@ map<int, vector<double> > brier_score(vector<vector<double> > Survival,
 	*/
 
 	// Initializing variables 
-	size_t i, j, M, N = Survival.size();
+	size_t i, /*j,*/ M, N = Survival.size(); // Commented out unused j
 	double censored_s, bs, t, S;
 	map<int, vector<double> > results;
 	int n, times_ = 0; //'times'
@@ -141,8 +141,8 @@ map<int, vector<double> > brier_score(vector<vector<double> > Survival,
 
 	// Initializing/computing the brier score vector
 	M = times.size();
-	size_t Nt = time_buckets.size();
-	for (j = 0; j < M; ++j){
+	// size_t Nt = time_buckets.size(); // Unused variable Nt
+	for (size_t j = 0; j < M; ++j){ // Changed loop variable type
 		bs = 0.;
 
 		// Extracting the time of interest
@@ -158,7 +158,7 @@ map<int, vector<double> > brier_score(vector<vector<double> > Survival,
 
 				S = Survival[i][n];
 				if(use_mean_point){
-					if(n<N-1){
+					if(static_cast<size_t>(n) < Survival[i].size()-1){ // Added static_cast<size_t> for n
 						S = (Survival[i][n] + Survival[i][n+1])/2. ;
 					}
 				}
@@ -222,7 +222,7 @@ map<int, vector<double> > time_ROC(vector<double> risk, vector<double> T,
 	*/
 
 	// Initializing 
-	size_t i, j, N = T.size();	
+	size_t /*i, j,*/ N = T.size();	// Commented out unused i, j
 	vector<double> weights, censored_Surv_KM; 
 	vector<double> weighted_cases, TP_vector, weighted_controls, FP_vector;
 	vector<int> order_risk;
@@ -245,10 +245,10 @@ map<int, vector<double> > time_ROC(vector<double> risk, vector<double> T,
 	S_censored = fmax(censored_km.predict_survival(t, false), 1e-4);
 	weighted_controls.resize(N, 1./(N*S_censored) );
 
-	for (j = 0; j < N; ++j){
+	for (size_t j = 0; j < N; ++j){ // Changed loop variable type
 
 		// Extracting the sorted index
-		i = order_risk[j];
+		size_t i = order_risk[j]; // Changed type of i to match order_risk elements
 
 		// Calculating the True Positive Rates
 		if ( (T[i] < t) and (E[i] == 1.) ){
@@ -267,7 +267,7 @@ map<int, vector<double> > time_ROC(vector<double> risk, vector<double> T,
 	// Creating the finalized TP and FP
 	TP_vector.resize(N+1, 0.);
 	FP_vector.resize(N+1, 0.);
-	for (i = 0; i < N; ++i){
+	for (size_t i = 0; i < N; ++i){ // Changed loop variable type
 		TP_vector[i+1] = TP_vector[i] + (weighted_cases[i])/den_TP_t;
 		FP_vector[i+1] = FP_vector[i] + (weighted_controls[i])/den_FP_t;
 	}

@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 #
-# Copyright 2019 Square Inc.
+# Copyright 2024 Square Inc.
 
 # Apache License
 # Version 2.0, January 2004
@@ -11,15 +11,8 @@ import codecs
 import re
 import glob
 from setuptools import setup, Extension, find_packages
-
-# Checking if numpy is installed
-try:
-  import numpy
-except:
-  import subprocess
-  print("numpy is not installed. So pysurvival will install it now.")
-  subprocess.call("pip install numpy", shell=True)
-  import numpy
+from Cython.Build import cythonize
+import numpy # Keep numpy import for numpy.get_include()
 
 # Package meta-data.
 NAME = 'pysurvival'
@@ -63,7 +56,7 @@ ext_modules = [
 
   Extension( 
     name = "pysurvival.utils._functions",
-    sources = ["pysurvival/cpp_extensions/_functions.cpp",
+    sources = ["pysurvival/cpp_extensions/_functions.pyx", # Changed .cpp to .pyx
                "pysurvival/cpp_extensions/functions.cpp" ,
                ],
     extra_compile_args = extra_compile_args, 
@@ -72,7 +65,7 @@ ext_modules = [
 
   Extension( 
     name = "pysurvival.utils._metrics",
-    sources = ["pysurvival/cpp_extensions/_metrics.cpp",
+    sources = ["pysurvival/cpp_extensions/_metrics.pyx", # Changed .cpp to .pyx
                "pysurvival/cpp_extensions/non_parametric.cpp",
                "pysurvival/cpp_extensions/metrics.cpp",
                "pysurvival/cpp_extensions/functions.cpp",
@@ -83,7 +76,7 @@ ext_modules = [
 
   Extension( 
     name = "pysurvival.models._non_parametric",
-    sources = ["pysurvival/cpp_extensions/_non_parametric.cpp",
+    sources = ["pysurvival/cpp_extensions/_non_parametric.pyx", # Changed .cpp to .pyx
                "pysurvival/cpp_extensions/non_parametric.cpp",
                "pysurvival/cpp_extensions/functions.cpp" 
                ],
@@ -93,7 +86,7 @@ ext_modules = [
 
   Extension( 
     name = "pysurvival.models._survival_forest",
-    sources = [ "pysurvival/cpp_extensions/_survival_forest.cpp",
+    sources = [ "pysurvival/cpp_extensions/_survival_forest.pyx", # Changed .cpp to .pyx
                 "pysurvival/cpp_extensions/survival_forest_data.cpp",
                 "pysurvival/cpp_extensions/survival_forest_utility.cpp",
                 "pysurvival/cpp_extensions/survival_forest_tree.cpp",
@@ -105,21 +98,23 @@ ext_modules = [
 
   Extension( 
     name = "pysurvival.models._coxph",
-    sources = [ "pysurvival/cpp_extensions/_coxph.cpp",
+    sources = [ "pysurvival/cpp_extensions/_coxph.pyx", # Changed .cpp to .pyx
                 "pysurvival/cpp_extensions/functions.cpp" 
               ],
     extra_compile_args = extra_compile_args, 
     language="c++", 
     include_dirs=[numpy.get_include()],
+    define_macros=[('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION')],
   ),
 
   Extension( 
     name = "pysurvival.models._svm",
-    sources = [ "pysurvival/cpp_extensions/_svm.cpp", 
+    sources = [ "pysurvival/cpp_extensions/_svm.pyx",  # Changed .cpp to .pyx
               ],
     extra_compile_args = extra_compile_args, 
     language="c++", 
     include_dirs=[numpy.get_include()],
+    define_macros=[('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION')],
   ),
   ]
 
@@ -142,10 +137,10 @@ setup(name=NAME,
           'Intended Audience :: Science/Research',
           'Operating System :: MacOS',
           'Operating System :: Unix',
-          'Programming Language :: Python :: 2',
-          'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3',
-          'Programming Language :: Python :: 3.7',
+          'Programming Language :: Python :: 3.10',
+          'Programming Language :: Python :: 3.11',
+          'Programming Language :: Python :: 3.12',
           'Topic :: Scientific/Engineering',
 		      'Topic :: Scientific/Engineering :: Mathematics',
           'Topic :: Scientific/Engineering :: Artificial Intelligence',
@@ -153,5 +148,5 @@ setup(name=NAME,
           'Topic :: Software Development :: Libraries :: Python Modules'
       ],
       packages=find_packages(),
-      ext_modules=ext_modules,
+      ext_modules=cythonize(ext_modules, compiler_directives={'language_level': "3"}),
   )

@@ -121,9 +121,9 @@ vector<double> KaplanMeierModel::fit(vector<double> T, vector<double> E,
     // Ensuring that T and E are sorted in a descending order according to T.
     vector<double> T_temp, E_temp, weights_temp;
     vector<int> desc_index = argsort(T, true);
-    int n;
-    for (int i = 0; i < N; ++i){
-        n = desc_index[i];
+    // int n; // n is defined inside loop
+    for (size_t i = 0; i < N; ++i){ // Changed int to size_t
+        int n = desc_index[i]; // Declare n here
         T_temp.push_back(T[n]);
 
         if(ipcw){
@@ -139,7 +139,7 @@ vector<double> KaplanMeierModel::fit(vector<double> T, vector<double> E,
 
     // Looping through the data to calculate Survival, hazard, 
     // Cumulative_Hazard and Variance 
-    for (int i = 0; i < N; ++i){
+    for (size_t i = 0; i < N; ++i){ // Changed int to size_t
 
         // Computing the at risk vector
         nb_at_risk += weights[i];
@@ -149,7 +149,7 @@ vector<double> KaplanMeierModel::fit(vector<double> T, vector<double> E,
             nb_events += weights[i];
         }
 
-        if (i < N-1 & T[i] == T[i+1]){
+        if ( (i < N-1) && (T[i] == T[i+1]) ){ // Added parentheses
             continue;
         } else{
             times.push_back(T[i]);
@@ -180,7 +180,7 @@ vector<double> KaplanMeierModel::fit(vector<double> T, vector<double> E,
     cum_std_error = 0.;
     survival_old = 1.;
 
-    for (int j = 0; j < Nt; ++j){
+    for (size_t j = 0; j < Nt; ++j){ // Changed int to size_t
 
         // Calculating hazard
         hazard_new = events[j]*1./at_risk[j];
@@ -278,10 +278,11 @@ vector<double> KernelModel::fit(vector<double> T, vector<double> E,
 	/** Fitting the Non Parametric Kernel model */
 
 	// Initializing
-    int size, i, j;
+    int size /*, i, j*/; // Commented out unused variables i, j
     vector<double> s_coefs, times, km_times, km_survival, kernel_vector;
     vector<vector<double> > kernel_matrix;
-    int Nx, Nt = T.size();
+    size_t Nx; // Changed int to size_t
+    size_t Nt_km = T.size(); // Changed Nt to Nt_km to avoid conflict with member Nt
     double x, b = this->b;
     int kernel = this->kernel_type;
     vector<double> survival, hazard, cumulative_hazard, survival_temp;
@@ -305,17 +306,17 @@ vector<double> KernelModel::fit(vector<double> T, vector<double> E,
     // Building the Kaplan Meier model
     km_survival = this->km_model.fit(T, E, weights, 0., false);
     km_times = this->km_model.times;
-    Nt = km_times.size();
-    s_coefs.resize(Nt, 0.);
+    Nt_km = km_times.size(); // Using Nt_km
+    s_coefs.resize(Nt_km, 0.);
 
-    for (i = 0; i < Nt-1; ++i){
+    for (size_t i = 0; i < Nt_km-1; ++i){ // Changed int to size_t, used Nt_km
     	s_coefs[i] = km_survival[i] - km_survival[i+1];
     }
-    s_coefs[-1] = km_survival[-1];
+    s_coefs[Nt_km-1] = km_survival[Nt_km-1]; // Corrected index for s_coefs
 
     // check if the kernel matrix fits in memory
     size = this->times.size()*km_times.size();
-    while(k_ < 10 & size/exp(k_*log(10)) > 1.){
+    while( (k_ < 10) && (size/exp(k_*log(10)) > 1.) ){ // Added parentheses
     	k_+=1;
     }
 
@@ -326,10 +327,11 @@ vector<double> KernelModel::fit(vector<double> T, vector<double> E,
     }
 
     // Calculating the kernel model
+    Nx = times.size(); // Initialize Nx here
     kernel_vector.resize(Nx, 0.);
-    kernel_matrix.resize(Nt, kernel_vector);
-    for (j = 0; j < Nx; ++j){
-    	for (i = 0; i < Nt; ++i){
+    kernel_matrix.resize(Nt_km, kernel_vector); // Using Nt_km
+    for (size_t j = 0; j < Nx; ++j){ // Changed int to size_t
+	for (size_t i = 0; i < Nt_km; ++i){ // Changed int to size_t, used Nt_km
 
     		x = (times[j] - km_times[i])/b;
     		if (fabs(x) <= bound){
@@ -382,7 +384,7 @@ vector<double> KernelModel::fit(vector<double> T, vector<double> E,
     	this->survival.push_back(1.-s);
     }
 
-    for (int i = 0; i < N; ++i){
+    for (size_t i = 0; i < N; ++i){ // Changed int to size_t
     	this->hazard.push_back( this->density[i]/max(this->survival[i], min_survival) );
     	this->cumulative_hazard.push_back(log(max(this->survival[i], min_survival)));
     }
