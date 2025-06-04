@@ -1,5 +1,4 @@
 #%%cython --a  
-# distutils: language = c++
 
 # Importing Numpy
 #-----------------

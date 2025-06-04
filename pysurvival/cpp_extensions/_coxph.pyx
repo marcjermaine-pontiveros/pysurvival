@@ -1,5 +1,4 @@
 # %%cython --a  
-# distutils: language = c++
 
 # Importing Numpy
 #-----------------
@@ -426,4 +425,4 @@ cdef class _CoxPHModel :
         self.inv_Hessian = inv_Hessian
         self.loss_values  = loss_values
         self.grad2_values = grad2_values
-    
+
